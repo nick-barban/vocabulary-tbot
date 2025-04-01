@@ -31,6 +31,11 @@ public class TelegramBotService extends TelegramLongPollingBot {
         return "VocabularyTBot";
     }
 
+    @Override
+    public void onUpdateReceived(Update update) {
+        handleUpdate(update);
+    }
+
     public void processUpdate(String updateJson) {
         try {
             Update update = objectMapper.readValue(updateJson, Update.class);

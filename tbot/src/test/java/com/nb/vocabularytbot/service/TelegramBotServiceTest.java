@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -34,8 +35,9 @@ class TelegramBotServiceTest {
     private TelegramBotService telegramBotService;
 
     @BeforeEach
-    void setUp() {
-        telegramBotService = new TelegramBotService(config, vocabularyService, objectMapper);
+    void setUp() throws TelegramApiException {
+        telegramBotService = spy(new TelegramBotService(config, vocabularyService, objectMapper));
+        doReturn(mock(Message.class)).when(telegramBotService).execute(any(SendMessage.class));
     }
 
     @Test
@@ -43,8 +45,10 @@ class TelegramBotServiceTest {
         // Prepare test data
         Update update = new Update();
         Message message = new Message();
+        Chat chat = new Chat();
+        chat.setId(123456789L);
+        message.setChat(chat);
         message.setText("/words");
-        message.setChatId(123456789L);
         update.setMessage(message);
 
         List<VocabularyWord> words = Arrays.asList(
@@ -61,6 +65,7 @@ class TelegramBotServiceTest {
 
         // Verify
         verify(vocabularyService).getTodayWords(123456789L);
+        verify(telegramBotService).execute(any(SendMessage.class));
     }
 
     @Test
@@ -68,8 +73,10 @@ class TelegramBotServiceTest {
         // Prepare test data
         Update update = new Update();
         Message message = new Message();
+        Chat chat = new Chat();
+        chat.setId(123456789L);
+        message.setChat(chat);
         message.setText("/help");
-        message.setChatId(123456789L);
         update.setMessage(message);
 
         // Configure mocks
@@ -80,6 +87,7 @@ class TelegramBotServiceTest {
 
         // Verify
         verify(vocabularyService, never()).getTodayWords(anyLong());
+        verify(telegramBotService).execute(any(SendMessage.class));
     }
 
     private VocabularyWord createVocabularyWord(String word, String translation) {

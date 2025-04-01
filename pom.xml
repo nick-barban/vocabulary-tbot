@@ -15,36 +15,63 @@
     </modules>
 
     <properties>
+        <java.version>17</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <micronaut.version>3.9.4</micronaut.version>
-        <micronaut.aws.version>3.0.0</micronaut.aws.version>
+        <micronaut.version>3.10.1</micronaut.version>
+        <aws.cdk.version>2.96.2</aws.cdk.version>
+        <aws.sdk.version>2.24.12</aws.sdk.version>
         <telegram.version>6.9.7.1</telegram.version>
-        <google-api.version>2.2.0</google-api.version>
-        <cdk.version>2.124.0</cdk.version>
+        <google.api.version>2.2.0</google.api.version>
+        <testcontainers.version>1.19.7</testcontainers.version>
         <junit.version>5.10.1</junit.version>
         <mockito.version>5.10.0</mockito.version>
-        <testcontainers.version>1.19.7</testcontainers.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
+            <id>micronaut</id>
+            <name>Micronaut Repository</name>
+            <url>https://s01.oss.sonatype.org/content/repositories/releases</url>
+        </repository>
+    </repositories>
 
     <dependencyManagement>
         <dependencies>
-            <!-- Micronaut -->
             <dependency>
                 <groupId>io.micronaut</groupId>
-                <artifactId>micronaut-http-client</artifactId>
+                <artifactId>micronaut-bom</artifactId>
+                <version>${micronaut.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.micronaut.aws</groupId>
+                <artifactId>micronaut-aws-bom</artifactId>
+                <version>${micronaut.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.micronaut.aws</groupId>
+                <artifactId>micronaut-function-aws-api-proxy</artifactId>
                 <version>${micronaut.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.micronaut</groupId>
+                <groupId>io.micronaut.aws</groupId>
                 <artifactId>micronaut-aws-lambda</artifactId>
-                <version>${micronaut.aws.version}</version>
+                <version>${micronaut.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.micronaut</groupId>
+                <groupId>io.micronaut.aws</groupId>
                 <artifactId>micronaut-aws-sdk-v2</artifactId>
-                <version>${micronaut.aws.version}</version>
+                <version>${micronaut.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.micronaut</groupId>
@@ -52,75 +79,79 @@
                 <version>${micronaut.version}</version>
             </dependency>
 
-            <!-- Telegram -->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.oauth-client</groupId>
+                <artifactId>google-oauth-client-jetty</artifactId>
+                <version>1.34.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>software.amazon.awscdk</groupId>
+                <artifactId>aws-cdk-lib</artifactId>
+                <version>${aws.cdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awscdk</groupId>
+                <artifactId>aws-cdk-aws-lambda-java</artifactId>
+                <version>${aws.cdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awscdk</groupId>
+                <artifactId>aws-cdk-aws-dynamodb</artifactId>
+                <version>${aws.cdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awscdk</groupId>
+                <artifactId>aws-cdk-aws-events</artifactId>
+                <version>${aws.cdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awscdk</groupId>
+                <artifactId>aws-cdk-aws-events-targets</artifactId>
+                <version>${aws.cdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awscdk</groupId>
+                <artifactId>aws-cdk-aws-iam</artifactId>
+                <version>${aws.cdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awscdk</groupId>
+                <artifactId>aws-cdk-aws-logs</artifactId>
+                <version>${aws.cdk.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>dynamodb</artifactId>
+                <version>${aws.sdk.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.telegram</groupId>
                 <artifactId>telegrambots</artifactId>
                 <version>${telegram.version}</version>
             </dependency>
 
-            <!-- Google API -->
-            <dependency>
-                <groupId>com.google.api-client</groupId>
-                <artifactId>google-api-client</artifactId>
-                <version>${google-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.oauth-client</groupId>
-                <artifactId>google-oauth-client-jetty</artifactId>
-                <version>${google-api.version}</version>
-            </dependency>
-
-            <!-- AWS SDK -->
-            <dependency>
-                <groupId>software.amazon.awssdk</groupId>
-                <artifactId>lambda</artifactId>
-                <version>2.24.12</version>
-            </dependency>
-            <dependency>
-                <groupId>software.amazon.awssdk</groupId>
-                <artifactId>dynamodb</artifactId>
-                <version>2.24.12</version>
-            </dependency>
-
-            <!-- AWS CDK -->
-            <dependency>
-                <groupId>software.amazon.awscdk</groupId>
-                <artifactId>aws-cdk-lib</artifactId>
-                <version>${cdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>software.amazon.awscdk</groupId>
-                <artifactId>aws-cdk-aws-lambda-java</artifactId>
-                <version>${cdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>software.amazon.awscdk</groupId>
-                <artifactId>aws-cdk-aws-dynamodb</artifactId>
-                <version>${cdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>software.amazon.awscdk</groupId>
-                <artifactId>aws-cdk-aws-events</artifactId>
-                <version>${cdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>software.amazon.awscdk</groupId>
-                <artifactId>aws-cdk-aws-events-targets</artifactId>
-                <version>${cdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>software.amazon.awscdk</groupId>
-                <artifactId>aws-cdk-aws-iam</artifactId>
-                <version>${cdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>software.amazon.awscdk</groupId>
-                <artifactId>aws-cdk-aws-logs</artifactId>
-                <version>${cdk.version}</version>
-            </dependency>
-
-            <!-- Testing -->
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
@@ -135,21 +166,6 @@
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
                 <version>${mockito.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>testcontainers</artifactId>
-                <version>${testcontainers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>junit-jupiter</artifactId>
-                <version>${testcontainers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>dynamodb</artifactId>
-                <version>${testcontainers.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -171,9 +187,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>3.2.3</version>
                     <configuration>
-                        <includes>
-                            <include>**/*Test.java</include>
-                        </includes>
+                        <argLine>--enable-preview</argLine>
                     </configuration>
                 </plugin>
             </plugins>

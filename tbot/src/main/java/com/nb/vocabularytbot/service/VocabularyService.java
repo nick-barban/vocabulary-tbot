@@ -5,7 +5,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.translate.Translate;
 import com.google.api.services.translate.TranslateScopes;
 import com.nb.vocabularytbot.config.ApplicationConfig;
@@ -18,6 +18,7 @@ import software.amazon.awssdk.services.dynamodb.model.*;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,13 +42,14 @@ public class VocabularyService {
 
     private Translate createTranslateService() throws GeneralSecurityException, IOException {
         HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+        JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
 
         GoogleCredential credential = new GoogleCredential()
                 .setAccessToken(config.getGoogleClientId())
                 .setRefreshToken(config.getGoogleClientSecret())
-                .setExpiresInSeconds(3600)
-                .setScopes(List.of(TranslateScopes.CLOUD_TRANSLATION));
+                .setExpiresInSeconds(3600L);
+
+        credential = credential.createScoped(Collections.singleton(TranslateScopes.CLOUD_TRANSLATION));
 
         return new Translate.Builder(httpTransport, jsonFactory, credential)
                 .setApplicationName("VocabularyTBot")
@@ -76,7 +78,8 @@ public class VocabularyService {
         try {
             QueryResponse queryResponse = dynamoDbClient.query(QueryRequest.builder()
                     .tableName(TABLE_NAME)
-                    .keyConditionExpression("chatId = :chatId AND lastReviewed < :today")
+                    .keyConditionExpression("chatId = :chatId")
+                    .filterExpression("lastReviewed < :today")
                     .expressionAttributeValues(Map.of(
                             ":chatId", AttributeValue.builder().s(String.valueOf(chatId)).build(),
                             ":today", AttributeValue.builder().s(String.valueOf(System.currentTimeMillis())).build()
@@ -99,7 +102,7 @@ public class VocabularyService {
         word.setTranslation(item.get("translation").s());
         word.setContext(item.get("context").s());
         word.setNotes(item.get("notes").s());
-        word.setLastReviewed(Long.parseLong(item.get("lastReviewed").s()));
+        word.setLastReviewed(Long.parseLong(item.get("lastReviewed").n()));
         word.setReviewCount(Integer.parseInt(item.get("reviewCount").n()));
         return word;
     }

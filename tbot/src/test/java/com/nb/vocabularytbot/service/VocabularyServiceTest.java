@@ -8,27 +8,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
-import java.net.URI;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@Testcontainers
 class VocabularyServiceTest {
-
-    @Container
-    public static GenericContainer<?> dynamoDb = new GenericContainer<>(
-            DockerImageName.parse("amazon/dynamodb-local:latest"))
-            .withExposedPorts(8000);
 
     @Mock
     private ApplicationConfig config;
@@ -36,18 +29,33 @@ class VocabularyServiceTest {
     @Mock
     private ObjectMapper objectMapper;
 
+    @Mock
     private DynamoDbClient dynamoDbClient;
+
     private VocabularyService vocabularyService;
 
     @BeforeEach
-    void setUp() {
-        // Create DynamoDB client pointing to the test container
-        dynamoDbClient = DynamoDbClient.builder()
-                .endpointOverride(URI.create("http://localhost:" + dynamoDb.getMappedPort(8000)))
-                .build();
-
-        // Create table
-        createTable();
+    void setUp() throws GeneralSecurityException, IOException {
+        when(config.getWordsPerDay()).thenReturn(10);
+        
+        // Mock DynamoDB responses
+        when(dynamoDbClient.putItem(any(PutItemRequest.class)))
+                .thenReturn(PutItemResponse.builder().build());
+                
+        Map<String, AttributeValue> item = Map.of(
+            "chatId", AttributeValue.builder().s("123456789").build(),
+            "word", AttributeValue.builder().s("test").build(),
+            "translation", AttributeValue.builder().s("тест").build(),
+            "context", AttributeValue.builder().s("Test context").build(),
+            "notes", AttributeValue.builder().s("Test notes").build(),
+            "lastReviewed", AttributeValue.builder().n(String.valueOf(System.currentTimeMillis())).build(),
+            "reviewCount", AttributeValue.builder().n("0").build()
+        );
+                
+        when(dynamoDbClient.query(any(QueryRequest.class)))
+                .thenReturn(QueryResponse.builder()
+                        .items(List.of(item))
+                        .build());
 
         vocabularyService = new VocabularyService(config, dynamoDbClient, objectMapper);
     }
@@ -79,43 +87,5 @@ class VocabularyServiceTest {
         assertEquals(word.getContext(), savedWord.getContext());
         assertEquals(word.getNotes(), savedWord.getNotes());
         assertEquals(word.getReviewCount(), savedWord.getReviewCount());
-    }
-
-    private void createTable() {
-        CreateTableRequest request = CreateTableRequest.builder()
-                .tableName("VocabularyWords")
-                .keySchema(
-                        KeySchemaElement.builder()
-                                .attributeName("chatId")
-                                .keyType(KeyType.HASH)
-                                .build(),
-                        KeySchemaElement.builder()
-                                .attributeName("word")
-                                .keyType(KeyType.RANGE)
-                                .build()
-                )
-                .attributeDefinitions(
-                        AttributeDefinition.builder()
-                                .attributeName("chatId")
-                                .attributeType(ScalarAttributeType.S)
-                                .build(),
-                        AttributeDefinition.builder()
-                                .attributeName("word")
-                                .attributeType(ScalarAttributeType.S)
-                                .build()
-                )
-                .provisionedThroughput(
-                        ProvisionedThroughput.builder()
-                                .readCapacityUnits(5L)
-                                .writeCapacityUnits(5L)
-                                .build()
-                )
-                .build();
-
-        try {
-            dynamoDbClient.createTable(request);
-        } catch (ResourceInUseException e) {
-            // Table already exists
-        }
     }
 } 

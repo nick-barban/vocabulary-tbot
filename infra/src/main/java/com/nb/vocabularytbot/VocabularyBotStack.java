@@ -1,17 +1,17 @@
 package com.nb.vocabularytbot;
 
 import software.amazon.awscdk.*;
-import software.amazon.awscdk.aws_apigateway.*;
-import software.amazon.awscdk.aws_dynamodb.*;
-import software.amazon.awscdk.aws_events.*;
-import software.amazon.awscdk.aws_events_targets.*;
-import software.amazon.awscdk.aws_iam.*;
-import software.amazon.awscdk.aws_lambda.*;
-import software.amazon.awscdk.aws_lambda_java.*;
-import software.amazon.awscdk.aws_logs.*;
+import software.amazon.awscdk.services.apigateway.*;
+import software.amazon.awscdk.services.dynamodb.*;
+import software.amazon.awscdk.services.events.*;
+import software.amazon.awscdk.services.events.targets.LambdaFunction;
+import software.amazon.awscdk.services.iam.*;
+import software.amazon.awscdk.services.lambda.*;
+import software.amazon.awscdk.services.logs.*;
 import software.constructs.Construct;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class VocabularyBotStack extends Stack {
@@ -34,16 +34,16 @@ public class VocabularyBotStack extends Stack {
                 .build();
 
         // Create Lambda function
-        JavaFunction lambdaFunction = JavaFunction.Builder.create(this, "VocabularyBotFunction")
-                .runtime(Runtime.JAVA_17)
+        Function lambdaFunction = Function.Builder.create(this, "VocabularyBotFunction")
+                .runtime(software.amazon.awscdk.services.lambda.Runtime.JAVA_17)
                 .handler("com.tutorspace.vocabularytbot.handler.LambdaHandler")
-                .code(Code.fromAsset("../target/vocabulary-tbot-1.0-SNAPSHOT.jar"))
+                .code(Code.fromAsset(System.getProperty("lambda.jar.path", "../target/vocabulary-tbot-1.0-SNAPSHOT.jar")))
                 .memorySize(512)
                 .timeout(Duration.seconds(30))
                 .environment(new HashMap<>(Map.of(
-                        "TELEGRAM_BOT_TOKEN", System.getenv("TELEGRAM_BOT_TOKEN"),
-                        "GOOGLE_CLIENT_ID", System.getenv("GOOGLE_CLIENT_ID"),
-                        "GOOGLE_CLIENT_SECRET", System.getenv("GOOGLE_CLIENT_SECRET"),
+                        "TELEGRAM_BOT_TOKEN", System.getProperty("TELEGRAM_BOT_TOKEN"),
+                        "GOOGLE_CLIENT_ID", System.getProperty("GOOGLE_CLIENT_ID"),
+                        "GOOGLE_CLIENT_SECRET", System.getProperty("GOOGLE_CLIENT_SECRET"),
                         "WORDS_PER_DAY", "5",
                         "SCHEDULE_CRON", "0 9 * * ? *" // Every day at 9 AM UTC
                 )))
@@ -73,7 +73,7 @@ public class VocabularyBotStack extends Stack {
         // Create EventBridge rule for scheduled execution
         Rule scheduledRule = Rule.Builder.create(this, "ScheduledVocabularyRule")
                 .schedule(Schedule.expression("cron(0 9 * * ? *)")) // Every day at 9 AM UTC
-                .targets(List.of(LambdaFunction.Builder.create(lambdaFunction).build()))
+                .targets(List.of(new LambdaFunction(lambdaFunction)))
                 .build();
 
         // Output the API Gateway URL
