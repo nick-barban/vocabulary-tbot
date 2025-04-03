@@ -1,0 +1,17 @@
+{
+  "name": "vocabulary-tbot-infra",
+  "version": "1.0.0",
+  "description": "Infrastructure code for Vocabulary Telegram Bot",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "aws-cdk": "^2.124.0",
+    "aws-cdk-lib": "^2.124.0",
+    "constructs": "^10.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.24"
+  }
+} 

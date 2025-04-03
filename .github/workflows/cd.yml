@@ -31,6 +31,7 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
+        cache-dependency-path: 'infra/package-lock.json'
         
     - name: Install AWS CLI
       run: |
@@ -38,9 +39,12 @@ jobs:
         unzip awscliv2.zip
         sudo ./aws/install
         
-    - name: Install AWS CDK
-      run: npm install -g aws-cdk
-      
+    - name: Install AWS CDK and dependencies
+      run: |
+        cd infra
+        npm install
+        npm install -g aws-cdk
+        
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
