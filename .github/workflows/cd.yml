@@ -1,8 +1,11 @@
 name: CD
 
 on:
-  push:
-    branches: [ main ]
+  workflow_run:
+    workflows: ["CI"]
+    branches: [main]
+    types:
+      - completed
 
 env:
   AWS_REGION: us-east-1
@@ -11,6 +14,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
     - uses: actions/checkout@v4
@@ -27,6 +31,12 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
+        
+    - name: Install AWS CLI
+      run: |
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install
         
     - name: Install AWS CDK
       run: npm install -g aws-cdk
