@@ -1,0 +1,5 @@
+com/nb/vocabularytbot/config/ApplicationConfig.class
+com/nb/vocabularytbot/model/VocabularyWord.class
+com/nb/vocabularytbot/service/VocabularyService.class
+com/nb/vocabularytbot/handler/LambdaHandler.class
+com/nb/vocabularytbot/service/TelegramBotService.class
