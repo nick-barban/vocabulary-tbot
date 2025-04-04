@@ -44,3 +44,12 @@ yarn-error.log*
 # AWS credentials
 .aws/
 aws.config
+
+# Temporary files
+O
+OAuth
+Oa
+Oau
+*.tmp
+*.temp
+.DS_Store
