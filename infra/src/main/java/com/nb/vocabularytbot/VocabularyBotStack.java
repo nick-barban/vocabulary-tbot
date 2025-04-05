@@ -41,9 +41,6 @@ public class VocabularyBotStack extends Stack {
                 .memorySize(512)
                 .timeout(Duration.seconds(30))
                 .environment(new HashMap<>(Map.of(
-                        "TELEGRAM_BOT_TOKEN", System.getProperty("TELEGRAM_BOT_TOKEN"),
-                        "GOOGLE_CLIENT_ID", System.getProperty("GOOGLE_CLIENT_ID"),
-                        "GOOGLE_CLIENT_SECRET", System.getProperty("GOOGLE_CLIENT_SECRET"),
                         "WORDS_PER_DAY", "5",
                         "SCHEDULE_CRON", "0 9 * * ? *" // Every day at 9 AM UTC
                 )))
