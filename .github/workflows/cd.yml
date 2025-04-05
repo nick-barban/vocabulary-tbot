@@ -63,10 +63,9 @@ jobs:
       run: mvn -B clean install --file pom.xml
       
     - name: Deploy with CDK
-      run: |
-        cd infra
-        cdk deploy --require-approval never
+      working-directory: ./infra
+      run: cdk deploy --require-approval never
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-        GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }} examine github actions using gh and find out why workflow deploy failed this time
+        GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
