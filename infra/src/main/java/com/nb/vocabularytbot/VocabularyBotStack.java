@@ -37,7 +37,7 @@ public class VocabularyBotStack extends Stack {
         Function lambdaFunction = Function.Builder.create(this, "VocabularyBotFunction")
                 .runtime(software.amazon.awscdk.services.lambda.Runtime.JAVA_17)
                 .handler("com.tutorspace.vocabularytbot.handler.LambdaHandler")
-                .code(Code.fromAsset(System.getProperty("lambda.jar.path", "../target/vocabulary-tbot-1.0-SNAPSHOT.jar")))
+                .code(Code.fromAsset("../"))
                 .memorySize(512)
                 .timeout(Duration.seconds(30))
                 .environment(new HashMap<>(Map.of(
