@@ -1,6 +1,7 @@
 package com.nb.vocabularytbot;
 
 import software.amazon.awscdk.*;
+import software.amazon.awscdk.services.s3.assets.AssetOptions;
 import software.amazon.awscdk.services.apigateway.*;
 import software.amazon.awscdk.services.dynamodb.*;
 import software.amazon.awscdk.services.events.*;
@@ -10,6 +11,7 @@ import software.amazon.awscdk.services.lambda.*;
 import software.amazon.awscdk.services.logs.*;
 import software.constructs.Construct;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +39,18 @@ public class VocabularyBotStack extends Stack {
         Function lambdaFunction = Function.Builder.create(this, "VocabularyBotFunction")
                 .runtime(software.amazon.awscdk.services.lambda.Runtime.JAVA_17)
                 .handler("com.tutorspace.vocabularytbot.handler.LambdaHandler")
-                .code(Code.fromAsset("../"))
+                .code(Code.fromAsset("../", AssetOptions.builder()
+                        .bundling(BundlingOptions.builder()
+                                .command(Arrays.asList(
+                                        "/bin/sh",
+                                        "-c",
+                                        "mvn clean package && cp /asset-input/target/vocabulary-tbot-1.0-SNAPSHOT.jar /asset-output/"
+                                ))
+                                .image(software.amazon.awscdk.services.lambda.Runtime.JAVA_17.getBundlingImage())
+                                .user("root")
+                                .outputType(BundlingOutput.ARCHIVED)
+                                .build())
+                        .build()))
                 .memorySize(512)
                 .timeout(Duration.seconds(30))
                 .environment(new HashMap<>(Map.of(
