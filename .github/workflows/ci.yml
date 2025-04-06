@@ -20,7 +20,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
-        
+
+    # Add Node.js setup for JSII tests
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18' # Or a version compatible with your CDK version
+
     - name: Build with Maven
       run: mvn -B clean install --file pom.xml
       

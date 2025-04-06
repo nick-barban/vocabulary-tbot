@@ -44,7 +44,7 @@ public class VocabularyBotStack extends Stack {
                                 .command(Arrays.asList(
                                         "/bin/sh",
                                         "-c",
-                                        "mvn clean package && cp /asset-input/target/vocabulary-tbot-1.0-SNAPSHOT.jar /asset-output/"
+                                        "mvn clean package -pl '!infra' -am && cp /asset-input/target/vocabulary-tbot-1.0-SNAPSHOT.jar /asset-output/"
                                 ))
                                 .image(software.amazon.awscdk.services.lambda.Runtime.JAVA_17.getBundlingImage())
                                 .user("root")
