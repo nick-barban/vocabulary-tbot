@@ -92,3 +92,5 @@ The project uses a multi-module Maven structure:
 ## License
 
 MIT License
+
+<!-- Trigger build -->
