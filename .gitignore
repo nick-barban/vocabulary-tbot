@@ -53,3 +53,7 @@ Oau
 *.tmp
 *.temp
 .DS_Store
+
+# AWS CDK output
+cdk.out/
+**/cdk.out/
